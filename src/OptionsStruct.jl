@@ -257,6 +257,8 @@ struct Options{
     deterministic::Bool
     define_helper_functions::Bool
     use_recorder::Bool
+    bin_op_weight::Vector{Float32} # My Addition
+    un_op_weight::Vector{Float32} # My Addition
 end
 
 function Base.print(io::IO, @nospecialize(options::Options))

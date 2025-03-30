@@ -645,8 +645,10 @@ $(OPTION_DESCRIPTIONS)
     npopulations::Union{Nothing,Integer}=nothing,
     npop::Union{Nothing,Integer}=nothing,
     deprecated_return_state::Union{Bool,Nothing}=nothing,
-    kws...,
     #########################################
+    bin_op_weight=nothing, # My Addition
+    un_op_weight=nothing, # My Addition
+    kws...,
 )
     for k in keys(kws)
         !haskey(deprecated_options_mapping, k) && error("Unknown keyword argument: $k")
@@ -842,6 +844,7 @@ $(OPTION_DESCRIPTIONS)
         node_type = @something(node_type, default_node_type(expression_type))
     end
 
+    # Marker 1
     _una_constraints, _bin_constraints = build_constraints(;
         una_constraints, bin_constraints, unary_operators, binary_operators
     )
@@ -927,6 +930,14 @@ $(OPTION_DESCRIPTIONS)
             output_directory
         end
 
+    if bin_op_weight === nothing
+        bin_op_weight = fill(1 / length(binary_operators), length(binary_operators)) # My Addition
+    end
+
+    if un_op_weight === nothing
+        un_op_weight = fill(1 / length(unary_operators), length(unary_operators)) # My Addition
+    end
+
     options = Options{
         typeof(complexity_mapping),
         operator_specialization(typeof(operators), expression_type),
@@ -1007,6 +1018,10 @@ $(OPTION_DESCRIPTIONS)
         deterministic,
         define_helper_functions,
         use_recorder,
+        # fill(1 / length(binary_operators), length(binary_operators)), # My Addition
+        # fill(1 / length(unary_operators), length(unary_operators)), # My Addition
+        bin_op_weight,
+        un_op_weight,
     )
 
     return options

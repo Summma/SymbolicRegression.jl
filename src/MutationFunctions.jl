@@ -1,6 +1,7 @@
 module MutationFunctionsModule
 
 using Random: default_rng, AbstractRNG
+using StatsBase: sample, Weights
 using DynamicExpressions:
     AbstractExpressionNode,
     AbstractExpression,
@@ -89,9 +90,15 @@ function mutate_operator(
     end
     node = rand(rng, NodeSampler(; tree, filter=t -> t.degree != 0))
     if node.degree == 1
-        node.op = rand(rng, 1:(options.nuna))
+        # node.op = rand(rng, 1:(options.nuna))
+        node.op = sample(rng, collect(1:(options.nuna)), Weights(options.un_op_weight)) # modified this whole thing
+        # println("node.op")
+        # println(node.op)
+        # println("options.nuna")
+        # println(options.nuna)
     else
-        node.op = rand(rng, 1:(options.nbin))
+        # node.op = rand(rng, 1:(options.nbin))
+        node.op = sample(rng, collect(1:(options.nbin)), Weights(options.bin_op_weight)) # modified this whole thing
     end
     return tree
 end
@@ -172,13 +179,15 @@ function append_random_op(
 
     if _make_new_bin_op
         newnode = constructorof(typeof(tree))(;
-            op=rand(rng, 1:(options.nbin)),
+            # op=rand(rng, 1:(options.nbin)),
+            op = sample(rng, collect(1:(options.nbin)), Weights(options.bin_op_weight)), # modified this whole thing
             l=make_random_leaf(nfeatures, T, typeof(tree), rng, options),
             r=make_random_leaf(nfeatures, T, typeof(tree), rng, options),
         )
     else
         newnode = constructorof(typeof(tree))(;
-            op=rand(rng, 1:(options.nuna)),
+            # op=rand(rng, 1:(options.nuna)),
+            op = sample(rng, collect(1:(options.nuna)), Weights(options.un_op_weight)), # modified this whole thing
             l=make_random_leaf(nfeatures, T, typeof(tree), rng, options),
         )
     end
@@ -215,10 +224,12 @@ function insert_random_op(
     if make_new_bin_op
         right = make_random_leaf(nfeatures, T, typeof(tree), rng, options)
         newnode = constructorof(typeof(tree))(;
-            op=rand(rng, 1:(options.nbin)), l=left, r=right
+            # op=rand(rng, 1:(options.nbin)), l=left, r=right
+            op=sample(rng, collect(1:(options.nbin)), Weights(options.bin_op_weight)), l=left, r=right # modified this whole thing
         )
     else
-        newnode = constructorof(typeof(tree))(; op=rand(rng, 1:(options.nuna)), l=left)
+        # newnode = constructorof(typeof(tree))(; op=rand(rng, 1:(options.nuna)), l=left)
+        newnode = constructorof(typeof(tree))(; op=sample(rng, collect(1:(options.nuna)), Weights(options.un_op_weight)), l=left) # modified this whole thing
     end
     set_node!(node, newnode)
     return tree
@@ -251,10 +262,12 @@ function prepend_random_op(
     if make_new_bin_op
         right = make_random_leaf(nfeatures, T, typeof(tree), rng, options)
         newnode = constructorof(typeof(tree))(;
-            op=rand(rng, 1:(options.nbin)), l=left, r=right
+            # op=rand(rng, 1:(options.nbin)), l=left, r=right
+            op=sample(rng, collect(1:(options.nbin)), Weights(options.bin_op_weight)), l=left, r=right # modified this whole thing
         )
     else
-        newnode = constructorof(typeof(tree))(; op=rand(rng, 1:(options.nuna)), l=left)
+        # newnode = constructorof(typeof(tree))(; op=rand(rng, 1:(options.nuna)), l=left)
+        newnode = constructorof(typeof(tree))(; op=sample(rng, collect(1:(options.nuna)), Weights(options.un_op_weight)), l=left) # modified this whole thing
     end
     set_node!(node, newnode)
     return node
